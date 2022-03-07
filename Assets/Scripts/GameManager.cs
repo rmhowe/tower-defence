@@ -1,12 +1,15 @@
+#nullable enable
+using FIS.ScriptableObjects;
 using UnityEngine;
 
 namespace FIS {
     public class GameManager : MonoBehaviour {
         [SerializeField] Vector2Int boardSize = new(11, 11);
-        [SerializeField] GameBoard board;
+        [SerializeField] GameBoard? board;
+        [SerializeField] GameTileContentFactory? tileContentFactory;
 
         void Awake() {
-            this.board.Initialise(this.boardSize);
+            this.board!.Initialise(this.boardSize);
         }
     }
 }
