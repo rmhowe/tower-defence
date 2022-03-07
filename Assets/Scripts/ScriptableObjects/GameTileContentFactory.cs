@@ -1,12 +1,11 @@
-#nullable enable
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace FIS.ScriptableObjects {
     [CreateAssetMenu(menuName = "Tower Defence/Tiles/Content Factory")]
     public class GameTileContentFactory : ScriptableObject {
-        [SerializeField] GameTileContent? destinationPrefab;
-        [SerializeField] GameTileContent? emptyPrefab;
+        [SerializeField] GameTileContent destinationPrefab;
+        [SerializeField] GameTileContent emptyPrefab;
         
         Scene contentScene;
         
@@ -36,7 +35,7 @@ namespace FIS.ScriptableObjects {
             SceneManager.MoveGameObjectToScene(go, this.contentScene);
         }
 
-        public GameTileContent? Get(GameTileContent.GameTileContentType type) {
+        public GameTileContent Get(GameTileContent.GameTileContentType type) {
             switch (type) {
                 case GameTileContent.GameTileContentType.Destination:
                     return this.Get(this.destinationPrefab!);

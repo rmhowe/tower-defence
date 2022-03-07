@@ -1,23 +1,34 @@
-#nullable enable
 using UnityEngine;
 
 namespace FIS {
     public class GameTile : MonoBehaviour {
-        [SerializeField] Transform? arrow;
+        [SerializeField] Transform arrow;
         
         static Quaternion northRotation = Quaternion.Euler(90f, 0f, 0f);
         static Quaternion southRotation = Quaternion.Euler(90f, 180f, 0f);
         static Quaternion eastRotation = Quaternion.Euler(90f, 90f, 0f);
         static Quaternion westRotation = Quaternion.Euler(90f, 270f, 0f);
         
-        GameTile? north, south, east, west;
-        GameTile? nextOnPath;
+        GameTile north, south, east, west;
+        GameTile nextOnPath;
         int distance;
-
+        
+        GameTileContent content;
+        public GameTileContent Content {
+            get => this.content;
+            set {
+                Debug.Assert(value != null, "Cannot assign null to content!");
+                if (this.content != null) {
+                    this.content.Recycle();
+                }
+                this.content = value;
+                this.content.transform.localPosition = this.transform.localPosition;
+            }
+        }
         public bool IsPathSet => this.distance != int.MaxValue;
         public bool IsAlternative;
 
-        GameTile? ExtendPath(GameTile? neighbour) {
+        GameTile ExtendPath(GameTile neighbour) {
             Debug.Assert(this.IsPathSet, "No path!");
             if (neighbour == null || neighbour.IsPathSet) {
                 return null;
@@ -27,10 +38,10 @@ namespace FIS {
             return neighbour;
         }
 
-        public GameTile? ExtendPathNorth() => this.ExtendPath(this.north);
-        public GameTile? ExtendPathSouth() => this.ExtendPath(this.south);
-        public GameTile? ExtendPathEast() => this.ExtendPath(this.east);
-        public GameTile? ExtendPathWest() => this.ExtendPath(this.west);
+        public GameTile ExtendPathNorth() => this.ExtendPath(this.north);
+        public GameTile ExtendPathSouth() => this.ExtendPath(this.south);
+        public GameTile ExtendPathEast() => this.ExtendPath(this.east);
+        public GameTile ExtendPathWest() => this.ExtendPath(this.west);
 
         public void ClearPath() {
             this.distance = int.MaxValue;

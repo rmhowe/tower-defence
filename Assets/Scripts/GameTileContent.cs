@@ -1,4 +1,3 @@
-#nullable enable
 using FIS.ScriptableObjects;
 using UnityEngine;
 
@@ -10,8 +9,8 @@ namespace FIS {
         }
         public GameTileContentType Type;
 
-        GameTileContentFactory? originFactory;
-        public GameTileContentFactory? OriginFactory {
+        GameTileContentFactory originFactory;
+        public GameTileContentFactory OriginFactory {
             get => this.originFactory;
             set {
                 Debug.Assert(this.originFactory == null, "Redefined origin factory!");
@@ -20,7 +19,7 @@ namespace FIS {
         }
 
         public void Recycle() {
-            this.originFactory?.Reclaim(this);
+            this.originFactory.Reclaim(this);
         }
     }
 }
