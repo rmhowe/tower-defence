@@ -13,6 +13,9 @@ namespace FIS {
         GameTile nextOnPath;
         int distance;
         
+        [HideInInspector] public bool IsAlternative;
+        public bool IsPathSet => this.distance != int.MaxValue;
+        
         GameTileContent content;
         public GameTileContent Content {
             get => this.content;
@@ -25,8 +28,6 @@ namespace FIS {
                 this.content.transform.localPosition = this.transform.localPosition;
             }
         }
-        public bool IsPathSet => this.distance != int.MaxValue;
-        public bool IsAlternative;
 
         GameTile ExtendPath(GameTile neighbour) {
             Debug.Assert(this.IsPathSet, "No path!");
@@ -35,7 +36,7 @@ namespace FIS {
             }
             neighbour.distance = this.distance + 1;
             neighbour.nextOnPath = this;
-            return neighbour;
+            return neighbour.Content.Type == GameTileContent.GameTileContentType.Wall ? null : neighbour;
         }
 
         public GameTile ExtendPathNorth() => this.ExtendPath(this.north);
@@ -59,12 +60,16 @@ namespace FIS {
                 return;
             }
             
-            this.arrow!.gameObject.SetActive(true);
-            this.arrow!.localRotation = this.nextOnPath == this.north ? GameTile.northRotation :
+            this.arrow.gameObject.SetActive(true);
+            this.arrow.localRotation = this.nextOnPath == this.north ? GameTile.northRotation :
                 this.nextOnPath == this.south ? GameTile.southRotation :
                 this.nextOnPath == this.east ? GameTile.eastRotation :
                 this.nextOnPath == this.west ? GameTile.westRotation :
                 Quaternion.Euler(45f, 0f, 0f);
+        }
+
+        public void HidePath() {
+            this.arrow.gameObject.SetActive(false);
         }
 
         public static void MakeEastWestNeighbours(GameTile east, GameTile west) {

@@ -6,6 +6,7 @@ namespace FIS.ScriptableObjects {
     public class GameTileContentFactory : ScriptableObject {
         [SerializeField] GameTileContent destinationPrefab;
         [SerializeField] GameTileContent emptyPrefab;
+        [SerializeField] GameTileContent wallPrefab;
         
         Scene contentScene;
         
@@ -38,9 +39,11 @@ namespace FIS.ScriptableObjects {
         public GameTileContent Get(GameTileContent.GameTileContentType type) {
             switch (type) {
                 case GameTileContent.GameTileContentType.Destination:
-                    return this.Get(this.destinationPrefab!);
+                    return this.Get(this.destinationPrefab);
                 case GameTileContent.GameTileContentType.Empty:
-                    return this.Get(this.emptyPrefab!);
+                    return this.Get(this.emptyPrefab);
+                case GameTileContent.GameTileContentType.Wall:
+                    return this.Get(this.wallPrefab);
                 default:
                     Debug.Log($"Unsupported type: {type}");
                     return null;

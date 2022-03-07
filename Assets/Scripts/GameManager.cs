@@ -14,25 +14,47 @@ namespace FIS {
         void Awake() {
             this.controls = new PlayerControls();
             this.board.Initialise(this.boardSize, this.tileContentFactory);
+            this.board.ShowGrid = true;
         }
 
-        void HandleClick(InputAction.CallbackContext context) {
-            Debug.Log($"{context.started} {context.performed} {context.canceled}");
+        void PlaceWall(InputAction.CallbackContext context) {
+            Ray ray = this.mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            GameTile tile = this.board.GetTile(ray);
+            if (tile != null) {
+                this.board.ToggleWall(tile);
+            }
+        }
+        
+        void PlaceDestination(InputAction.CallbackContext context) {
             Ray ray = this.mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
             GameTile tile = this.board.GetTile(ray);
             if (tile != null) {
                 this.board.ToggleDestination(tile);
             }
         }
+        
+        void TogglePathVisibility(InputAction.CallbackContext context) {
+            this.board.ShowPaths = !this.board.ShowPaths;
+        }
+        
+        void ToggleGridVisibility(InputAction.CallbackContext context) {
+            this.board.ShowGrid = !this.board.ShowGrid;
+        }
 
         void OnEnable() {
-            this.controls.UI.Click.performed += this.HandleClick; 
-            this.controls.UI.Click.Enable();
+            this.controls.Player.PlaceWall.performed += this.PlaceWall;
+            this.controls.Player.PlaceDestination.performed += this.PlaceDestination;
+            this.controls.Player.TogglePathVisibility.performed += this.TogglePathVisibility;
+            this.controls.Player.ToggleGridVisibility.performed += this.ToggleGridVisibility;
+            this.controls.Player.Enable();
         }
         
         void OnDisable() {
-            this.controls.UI.Click.performed -= this.HandleClick;
-            this.controls.UI.Click.Disable();
+            this.controls.Player.PlaceWall.performed -= this.PlaceWall;
+            this.controls.Player.PlaceDestination.performed -= this.PlaceDestination;
+            this.controls.Player.TogglePathVisibility.performed -= this.TogglePathVisibility;
+            this.controls.Player.ToggleGridVisibility.performed -= this.ToggleGridVisibility;
+            this.controls.Player.Disable();
         }
     }
 }

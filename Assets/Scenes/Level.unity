@@ -222,7 +222,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 20
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -452,6 +452,7 @@ MonoBehaviour:
   ground: {fileID: 2072517064}
   tilePrefab: {fileID: 2263138838707600292, guid: 40f35c7871d9d438cacc39a256cde298,
     type: 3}
+  gridTexture: {fileID: 2800000, guid: e4f1cd83c760b4b9590159e2aee4890a, type: 3}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

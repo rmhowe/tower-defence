@@ -6,14 +6,47 @@ namespace FIS {
     public class GameBoard : MonoBehaviour {
         [SerializeField] Transform ground;
         [SerializeField] GameTile tilePrefab;
+        [SerializeField] Texture2D gridTexture;
 
         Vector2Int size;
         GameTile[] tiles;
         Queue<GameTile> searchFrontier = new();
         GameTileContentFactory contentFactory;
 
+        bool showPaths = false;
+        public bool ShowPaths {
+            get => this.showPaths;
+            set {
+                this.showPaths = value;
+                if (this.showPaths) {
+                    foreach (var tile in this.tiles) {
+                        tile.ShowPath();
+                    }
+                } else {
+                    foreach (var tile in this.tiles) {
+                        tile.HidePath();
+                    }
+                }
+            }
+        }
+
+        bool showGrid = false;
+        public bool ShowGrid {
+            get => this.showGrid;
+            set {
+                this.showGrid = value;
+                var mat = this.ground.GetComponent<MeshRenderer>().material;
+                if (this.showGrid) {
+                    mat.mainTexture = this.gridTexture;
+                    mat.mainTextureScale = this.size;
+                } else {
+                    mat.mainTexture = null;
+                }
+            }
+        }
+
         bool SetPaths() {
-            foreach (GameTile tile in this.tiles) {
+            foreach (var tile in this.tiles) {
                 if (tile.Content.Type == GameTileContent.GameTileContentType.Destination) {
                     tile.SetAsDestination();
                     this.searchFrontier.Enqueue(tile);
@@ -27,7 +60,7 @@ namespace FIS {
             }
 
             while (this.searchFrontier.Count > 0) {
-                GameTile tile = this.searchFrontier.Dequeue();
+                var tile = this.searchFrontier.Dequeue();
                 if (tile != null) {
                     if (tile.IsAlternative) {
                         this.searchFrontier.Enqueue(tile.ExtendPathNorth());
@@ -43,9 +76,18 @@ namespace FIS {
                 }
             }
 
-            foreach (GameTile tile in this.tiles) {
-                tile.ShowPath();
+            foreach (var tile in this.tiles) {
+                if (!tile.IsPathSet) {
+                    return false;
+                }
             }
+
+            if (this.showPaths) {
+                foreach (var tile in this.tiles) {
+                    tile.ShowPath();
+                }
+            }
+            
             return true;
         }
 
@@ -100,9 +142,22 @@ namespace FIS {
                     tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Destination);
                     this.SetPaths();
                 }
-            } else {
+            } else if (tile.Content.Type == GameTileContent.GameTileContentType.Empty) {
                 tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Destination);
                 this.SetPaths();
+            }
+        }
+
+        public void ToggleWall(GameTile tile) {
+            if (tile.Content.Type == GameTileContent.GameTileContentType.Wall) {
+                tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Empty);
+                this.SetPaths();
+            } else if (tile.Content.Type == GameTileContent.GameTileContentType.Empty) {
+                tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Wall);
+                if (!this.SetPaths()) {
+                    tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Empty);
+                    this.SetPaths();
+                }
             }
         }
     }
