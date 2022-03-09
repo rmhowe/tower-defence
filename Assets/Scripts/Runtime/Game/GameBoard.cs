@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using FIS.ScriptableObjects;
+using FIS.Runtime.ScriptableObjects;
+using FIS.Runtime.Types;
 using UnityEngine;
 
-namespace FIS {
+namespace FIS.Runtime.Game {
     public class GameBoard : MonoBehaviour {
         [SerializeField] Transform ground;
         [SerializeField] GameTile tilePrefab;
@@ -11,7 +12,12 @@ namespace FIS {
         Vector2Int size;
         GameTile[] tiles;
         Queue<GameTile> searchFrontier = new();
+        List<GameTile> spawnPoints = new();
         GameTileContentFactory contentFactory;
+        bool pathsValid;
+
+        public int SpawnPointCount => this.spawnPoints.Count;
+        public GameTile GetSpawnPoint(int index) => this.spawnPoints[index];
 
         bool showPaths = false;
         public bool ShowPaths {
@@ -45,9 +51,10 @@ namespace FIS {
             }
         }
 
-        bool SetPaths() {
+        void SetPaths() {
+            this.pathsValid = false;
             foreach (var tile in this.tiles) {
-                if (tile.Content.Type == GameTileContent.GameTileContentType.Destination) {
+                if (tile.Content.Type == GameTileContentType.Destination) {
                     tile.SetAsDestination();
                     this.searchFrontier.Enqueue(tile);
                 } else {
@@ -56,7 +63,7 @@ namespace FIS {
             }
 
             if (this.searchFrontier.Count == 0) {
-                return false;
+                return;
             }
 
             while (this.searchFrontier.Count > 0) {
@@ -78,7 +85,7 @@ namespace FIS {
 
             foreach (var tile in this.tiles) {
                 if (!tile.IsPathSet) {
-                    return false;
+                    return;
                 }
             }
 
@@ -88,7 +95,7 @@ namespace FIS {
                 }
             }
             
-            return true;
+            this.pathsValid = true;
         }
 
         public void Initialise(Vector2Int boardSize, GameTileContentFactory tileContentFactory) {
@@ -107,7 +114,7 @@ namespace FIS {
                     if (y % 2 == 0) {
                         tile.IsAlternative = !tile.IsAlternative;
                     }
-                    tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Empty);
+                    tile.Content = this.contentFactory.Get(GameTileContentType.Empty);
                     this.tiles[i] = tile;
 
                     if (x > 0) {
@@ -122,6 +129,7 @@ namespace FIS {
             }
             
             this.ToggleDestination(this.tiles[this.tiles.Length / 2]);
+            this.ToggleSpawnPoint(this.tiles[0]);
         }
 
         public GameTile GetTile(Ray ray) {
@@ -136,28 +144,51 @@ namespace FIS {
         }
 
         public void ToggleDestination(GameTile tile) {
-            if (tile.Content.Type == GameTileContent.GameTileContentType.Destination) {
-                tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Empty);
-                if (!this.SetPaths()) {
-                    tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Destination);
+            switch (tile.Content.Type) {
+                case GameTileContentType.Destination:
+                    tile.Content = this.contentFactory.Get(GameTileContentType.Empty);
                     this.SetPaths();
-                }
-            } else if (tile.Content.Type == GameTileContent.GameTileContentType.Empty) {
-                tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Destination);
-                this.SetPaths();
+                    if (!this.pathsValid) {
+                        tile.Content = this.contentFactory.Get(GameTileContentType.Destination);
+                        this.SetPaths();
+                    }
+                    return;
+                case GameTileContentType.Empty:
+                    tile.Content = this.contentFactory.Get(GameTileContentType.Destination);
+                    this.SetPaths();
+                    return;
             }
         }
 
         public void ToggleWall(GameTile tile) {
-            if (tile.Content.Type == GameTileContent.GameTileContentType.Wall) {
-                tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Empty);
-                this.SetPaths();
-            } else if (tile.Content.Type == GameTileContent.GameTileContentType.Empty) {
-                tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Wall);
-                if (!this.SetPaths()) {
-                    tile.Content = this.contentFactory.Get(GameTileContent.GameTileContentType.Empty);
+            switch (tile.Content.Type) {
+                case GameTileContentType.Wall:
+                    tile.Content = this.contentFactory.Get(GameTileContentType.Empty);
                     this.SetPaths();
-                }
+                    return;
+                case GameTileContentType.Empty:
+                    tile.Content = this.contentFactory.Get(GameTileContentType.Wall);
+                    this.SetPaths();
+                    if (!this.pathsValid) {
+                        tile.Content = this.contentFactory.Get(GameTileContentType.Empty);
+                        this.SetPaths();
+                    }
+                    return;
+            }
+        }
+        
+        public void ToggleSpawnPoint(GameTile tile) {
+            switch (tile.Content.Type) {
+                case GameTileContentType.SpawnPoint:
+                    if (this.spawnPoints.Count > 1) {
+                        this.spawnPoints.Remove(tile);
+                        tile.Content = this.contentFactory.Get(GameTileContentType.Empty);
+                    }
+                    return;
+                case GameTileContentType.Empty:
+                    tile.Content = this.contentFactory.Get(GameTileContentType.SpawnPoint);
+                    this.spawnPoints.Add(tile);
+                    return;
             }
         }
     }

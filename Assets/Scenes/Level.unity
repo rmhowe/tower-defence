@@ -170,6 +170,8 @@ MonoBehaviour:
   boardSize: {x: 11, y: 11}
   board: {fileID: 531425300}
   tileContentFactory: {fileID: 11400000, guid: bfad17c8486cf4981b339a7fbfced6a4, type: 2}
+  enemyFactory: {fileID: 11400000, guid: a085cb87774fc4ac39dac7dbfd78645b, type: 2}
+  enemySpawnSpeed: 0.1
   mainCamera: {fileID: 330585545}
 --- !u!1 &330585543
 GameObject:

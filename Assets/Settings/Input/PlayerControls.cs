@@ -62,6 +62,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PlaceSpawnPoint"",
+                    ""type"": ""Button"",
+                    ""id"": ""a533f115-6cdb-4453-88d0-155210bd03d4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -106,6 +115,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""PlaceDestination"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""62d6b273-9d27-44d0-a956-6515dfbdca19"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""PlaceSpawnPoint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -697,6 +717,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Player_ToggleGridVisibility = m_Player.FindAction("ToggleGridVisibility", throwIfNotFound: true);
         m_Player_PlaceWall = m_Player.FindAction("PlaceWall", throwIfNotFound: true);
         m_Player_PlaceDestination = m_Player.FindAction("PlaceDestination", throwIfNotFound: true);
+        m_Player_PlaceSpawnPoint = m_Player.FindAction("PlaceSpawnPoint", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -772,6 +793,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ToggleGridVisibility;
     private readonly InputAction m_Player_PlaceWall;
     private readonly InputAction m_Player_PlaceDestination;
+    private readonly InputAction m_Player_PlaceSpawnPoint;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -780,6 +802,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @ToggleGridVisibility => m_Wrapper.m_Player_ToggleGridVisibility;
         public InputAction @PlaceWall => m_Wrapper.m_Player_PlaceWall;
         public InputAction @PlaceDestination => m_Wrapper.m_Player_PlaceDestination;
+        public InputAction @PlaceSpawnPoint => m_Wrapper.m_Player_PlaceSpawnPoint;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -801,6 +824,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @PlaceDestination.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPlaceDestination;
                 @PlaceDestination.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPlaceDestination;
                 @PlaceDestination.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPlaceDestination;
+                @PlaceSpawnPoint.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPlaceSpawnPoint;
+                @PlaceSpawnPoint.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPlaceSpawnPoint;
+                @PlaceSpawnPoint.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPlaceSpawnPoint;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -817,6 +843,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @PlaceDestination.started += instance.OnPlaceDestination;
                 @PlaceDestination.performed += instance.OnPlaceDestination;
                 @PlaceDestination.canceled += instance.OnPlaceDestination;
+                @PlaceSpawnPoint.started += instance.OnPlaceSpawnPoint;
+                @PlaceSpawnPoint.performed += instance.OnPlaceSpawnPoint;
+                @PlaceSpawnPoint.canceled += instance.OnPlaceSpawnPoint;
             }
         }
     }
@@ -977,6 +1006,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnToggleGridVisibility(InputAction.CallbackContext context);
         void OnPlaceWall(InputAction.CallbackContext context);
         void OnPlaceDestination(InputAction.CallbackContext context);
+        void OnPlaceSpawnPoint(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

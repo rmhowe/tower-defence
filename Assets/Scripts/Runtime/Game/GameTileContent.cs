@@ -1,13 +1,9 @@
-using FIS.ScriptableObjects;
+using FIS.Runtime.ScriptableObjects;
+using FIS.Runtime.Types;
 using UnityEngine;
 
-namespace FIS {
+namespace FIS.Runtime.Game {
     public class GameTileContent : MonoBehaviour {
-        public enum GameTileContentType {
-            Empty,
-            Destination,
-            Wall
-        }
         public GameTileContentType Type;
 
         GameTileContentFactory originFactory;

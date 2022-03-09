@@ -1,6 +1,7 @@
+using FIS.Runtime.Types;
 using UnityEngine;
 
-namespace FIS {
+namespace FIS.Runtime.Game {
     public class GameTile : MonoBehaviour {
         [SerializeField] Transform arrow;
         
@@ -10,12 +11,14 @@ namespace FIS {
         static Quaternion westRotation = Quaternion.Euler(90f, 270f, 0f);
         
         GameTile north, south, east, west;
-        GameTile nextOnPath;
         int distance;
         
         [HideInInspector] public bool IsAlternative;
         public bool IsPathSet => this.distance != int.MaxValue;
-        
+        public GameTile NextOnPath { get; private set; }
+        public Vector3 ExitPoint { get; private set; }
+        public Direction PathDirection { get; private set; }
+
         GameTileContent content;
         public GameTileContent Content {
             get => this.content;
@@ -29,29 +32,32 @@ namespace FIS {
             }
         }
 
-        GameTile ExtendPath(GameTile neighbour) {
+        GameTile ExtendPath(GameTile neighbour, Direction direction) {
             Debug.Assert(this.IsPathSet, "No path!");
             if (neighbour == null || neighbour.IsPathSet) {
                 return null;
             }
             neighbour.distance = this.distance + 1;
-            neighbour.nextOnPath = this;
-            return neighbour.Content.Type == GameTileContent.GameTileContentType.Wall ? null : neighbour;
+            neighbour.NextOnPath = this;
+            neighbour.ExitPoint = neighbour.transform.localPosition - direction.GetHalfVector();
+            neighbour.PathDirection = direction;
+            return neighbour.Content.Type == GameTileContentType.Wall ? null : neighbour;
         }
 
-        public GameTile ExtendPathNorth() => this.ExtendPath(this.north);
-        public GameTile ExtendPathSouth() => this.ExtendPath(this.south);
-        public GameTile ExtendPathEast() => this.ExtendPath(this.east);
-        public GameTile ExtendPathWest() => this.ExtendPath(this.west);
+        public GameTile ExtendPathNorth() => this.ExtendPath(this.north, Direction.North);
+        public GameTile ExtendPathSouth() => this.ExtendPath(this.south, Direction.South);
+        public GameTile ExtendPathEast() => this.ExtendPath(this.east, Direction.East);
+        public GameTile ExtendPathWest() => this.ExtendPath(this.west, Direction.West);
 
         public void ClearPath() {
             this.distance = int.MaxValue;
-            this.nextOnPath = null;
+            this.NextOnPath = null;
         }
         
         public void SetAsDestination() {
             this.distance = 0;
-            this.nextOnPath = null;
+            this.NextOnPath = null;
+            this.ExitPoint = this.transform.localPosition;
         }
 
         public void ShowPath() {
@@ -61,10 +67,10 @@ namespace FIS {
             }
             
             this.arrow.gameObject.SetActive(true);
-            this.arrow.localRotation = this.nextOnPath == this.north ? GameTile.northRotation :
-                this.nextOnPath == this.south ? GameTile.southRotation :
-                this.nextOnPath == this.east ? GameTile.eastRotation :
-                this.nextOnPath == this.west ? GameTile.westRotation :
+            this.arrow.localRotation = this.NextOnPath == this.north ? GameTile.northRotation :
+                this.NextOnPath == this.south ? GameTile.southRotation :
+                this.NextOnPath == this.east ? GameTile.eastRotation :
+                this.NextOnPath == this.west ? GameTile.westRotation :
                 Quaternion.Euler(45f, 0f, 0f);
         }
 
