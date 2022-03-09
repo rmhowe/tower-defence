@@ -38,8 +38,9 @@ namespace FIS.Runtime.Game {
             Debug.Assert(tile.NextOnPath != null, "Nowhere to go!", this);
             this.tileFrom = tile;
             this.tileTo = tile.NextOnPath;
+            this.positionFrom = this.tileFrom.transform.localPosition;
+            this.positionTo = this.tileTo.transform.localPosition;
             this.progress = 0f;
-            this.PrepareIntro();
         }
 
         void PrepareForward() {
@@ -100,15 +101,11 @@ namespace FIS.Runtime.Game {
                 }
 
                 this.progress -= 1f;
-                this.PrepareNextState();
+                this.positionFrom = this.positionTo;
+                this.positionTo = this.tileTo.transform.localPosition;
             }
 
-            if (this.directionChange == DirectionChange.None) {
-                this.transform.localPosition = Vector3.LerpUnclamped(this.positionFrom, this.positionTo, this.progress);
-            } else {
-                float angle = Mathf.LerpUnclamped(this.directionAngleFrom, this.directionAngleTo, this.progress);
-                this.transform.localRotation = Quaternion.Euler(0f, angle, 0f);
-            }
+            this.transform.localPosition = Vector3.LerpUnclamped(this.positionFrom, this.positionTo, this.progress);
         }
     }
 }
